@@ -19,21 +19,112 @@ module ::DiscourseImageAlbum
     before_validation :populate_metadata_from_upload, on: :create
 
     def url
-      if upload.present?
+      raw_url = if upload.present?
         upload.url
       else
         image_url
       end
+
+      self.class.cook_url(raw_url, upload: upload)
     end
 
     def thumb_url
-      if thumbnail_url.present?
-        thumbnail_url
-      elsif upload.present?
-        upload.thumbnail(200, 200)&.url.presence || upload.url
-      else
-        image_url
+      if upload.present?
+        best_opt = find_best_optimized_image
+        raw_thumb = best_opt&.url.presence || thumbnail_url.presence || upload.url
+        return self.class.cook_url(raw_thumb, upload: upload)
       end
+
+      if thumbnail_url.present?
+        return self.class.cook_url(thumbnail_url)
+      end
+
+      self.class.cook_url(image_url)
+    end
+
+    def find_best_optimized_image
+      return nil unless upload.present?
+
+      # 1. Look for existing optimized versions on the upload
+      opts = upload.optimized_images.to_a
+      if opts.any?
+        # Target thumbnail width between 180px and 700px
+        suitable = opts.select { |oi| oi.width.to_i >= 180 }
+        return suitable.min_by { |oi| oi.width.to_i } || opts.max_by { |oi| oi.width.to_i }
+      end
+
+      # 2. Try creating or fetching an optimized thumbnail via Discourse
+      begin
+        if upload.respond_to?(:get_optimized_image)
+          upload.get_optimized_image(400, 400)
+        elsif upload.respond_to?(:thumbnail)
+          upload.thumbnail(400, 400) || upload.thumbnail
+        end
+      rescue => e
+        nil
+      end
+    end
+
+    def self.cook_url(raw_url, upload: nil)
+      return "" if raw_url.blank?
+
+      url = raw_url.to_s.strip
+
+      # 1. Use Discourse UrlHelper.cook_url
+      if defined?(::UrlHelper) && ::UrlHelper.respond_to?(:cook_url)
+        begin
+          cooked = ::UrlHelper.cook_url(url, secure: upload&.secure?, local: true)
+          url = cooked if cooked.present?
+        rescue => e
+          # continue
+        end
+      end
+
+      # 2. Use Discourse.store.cdn_url
+      if defined?(::Discourse) && ::Discourse.respond_to?(:store) && ::Discourse.store.respond_to?(:cdn_url)
+        begin
+          cdn = ::Discourse.store.cdn_url(url)
+          url = cdn if cdn.present?
+        rescue => e
+          # continue
+        end
+      end
+
+      # 3. Direct S3 CDN replacement if configured and URL still references raw endpoint or bucket
+      s3_cdn = SiteSetting.try(:s3_cdn_url).presence || GlobalSetting.try(:s3_cdn_url).presence
+      if s3_cdn.present?
+        clean_cdn = s3_cdn.sub(%r{/\z}, "")
+
+        endpoint = SiteSetting.try(:s3_endpoint).presence || GlobalSetting.try(:s3_endpoint).presence
+        if endpoint.present?
+          endpoint_host = (URI.parse(endpoint).host rescue nil)
+          if endpoint_host.present? && url.include?(endpoint_host)
+            url = url.sub(%r{(https?:)?//([^/]+)/}, "#{clean_cdn}/")
+          end
+        end
+
+        bucket = SiteSetting.try(:s3_bucket).presence || GlobalSetting.try(:s3_bucket).presence
+        if bucket.present? && url.include?("#{bucket}.")
+          url = url.sub(%r{(https?:)?//#{Regexp.escape(bucket)}\.[^/]+/}, "#{clean_cdn}/")
+        end
+      end
+
+      # 4. If URL still points directly to private R2 storage without a CDN,
+      # fallback to upload.short_path so Discourse's controller serves the asset
+      if url.include?(".r2.cloudflarestorage.com") && upload.present? && upload.respond_to?(:short_path)
+        url = upload.short_path
+      end
+
+      # 5. Fix scheme and relative path
+      if url.start_with?("//")
+        scheme = SiteSetting.try(:force_https) ? "https:" : "http:"
+        url = "#{scheme}#{url}"
+      elsif url.start_with?("/")
+        base = Discourse.try(:base_url) || ""
+        url = "#{base}#{url}"
+      end
+
+      url
     end
 
     def markdown_syntax
@@ -61,7 +152,11 @@ module ::DiscourseImageAlbum
       self.width ||= upload.width
       self.height ||= upload.height
       self.image_url ||= upload.url
-      self.thumbnail_url ||= upload.thumbnail(200, 200)&.url if thumbnail_url.blank?
+
+      if thumbnail_url.blank?
+        best_opt = find_best_optimized_image
+        self.thumbnail_url = best_opt&.url if best_opt.present?
+      end
     end
 
     def validate_image_source

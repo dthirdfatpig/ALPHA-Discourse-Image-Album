@@ -160,6 +160,13 @@ export default class AlbumManagerModal extends Component {
   }
 
   @action
+  onImageError(item, event) {
+    if (event?.target && item.url && event.target.src !== item.url) {
+      event.target.src = item.url;
+    }
+  }
+
+  @action
   toggleItem(itemId) {
     const updated = new Set(this.selectedItemIds);
     if (updated.has(itemId)) {
@@ -576,7 +583,12 @@ export default class AlbumManagerModal extends Component {
                         {{icon "check"}}
                       {{/if}}
                     </div>
-                    <img src={{item.thumb_url}} alt={{item.title}} loading="lazy" />
+                    <img
+                      src={{item.thumb_url}}
+                      alt={{item.title}}
+                      loading="lazy"
+                      {{on "error" (fn this.onImageError item)}}
+                    />
                     {{#if item.title}}
                       <div class="photo-overlay">{{item.title}}</div>
                     {{/if}}

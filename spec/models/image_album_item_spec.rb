@@ -39,4 +39,23 @@ RSpec.describe DiscourseImageAlbum::ImageAlbumItem, type: :model do
     expect(item.url).to eq("https://example.com/photo.jpg")
     expect(item.markdown_syntax).to eq("![Nature Shot](https://example.com/photo.jpg)")
   end
+
+  describe ".cook_url" do
+    it "rewrites S3 / R2 endpoints to S3 CDN URL when configured" do
+      SiteSetting.s3_cdn_url = "https://cdn.example.com"
+      SiteSetting.s3_endpoint = "https://account123.r2.cloudflarestorage.com"
+      SiteSetting.s3_bucket = "mybucket"
+
+      cooked = described_class.cook_url("//mybucket.account123.r2.cloudflarestorage.com/optimized/1X/image.jpg")
+      expect(cooked).to eq("https://cdn.example.com/optimized/1X/image.jpg")
+    end
+
+    it "falls back to upload short_path if private R2 endpoint has no CDN" do
+      SiteSetting.s3_cdn_url = ""
+      fake_upload = Fabricate(:upload, user: user)
+
+      cooked = described_class.cook_url("//mybucket.account123.r2.cloudflarestorage.com/original/1X/secret.jpg", upload: fake_upload)
+      expect(cooked).to eq("#{Discourse.base_url}#{fake_upload.short_path}")
+    end
+  end
 end

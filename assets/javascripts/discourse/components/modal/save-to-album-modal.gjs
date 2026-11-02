@@ -105,6 +105,7 @@ export default class SaveToAlbumModal extends Component {
         data: {
           album_id: albumId,
           image_url: this.args.model?.imageUrl,
+          thumbnail_url: this.args.model?.thumbnailUrl,
           post_id: this.args.model?.postId,
           title: this.title,
         },

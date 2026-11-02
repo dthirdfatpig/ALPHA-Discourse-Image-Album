@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: ALPHA-Discourse-Image-Album
 # about: Personal photo album system for Discourse users with sub-albums, composer integration, 1-click photo saving, bulk management, and comprehensive admin quotas.
-# version: 0.1.4-alpha
+# version: 0.1.5-alpha
 # authors: AI Assistant & dthirdfatpig
 # url: https://github.com/dthirdfatpig/ALPHA-Discourse-Image-Album
 # required_version: 2.7.0

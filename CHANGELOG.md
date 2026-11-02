@@ -5,6 +5,17 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5-alpha] - 2026-11-02
+
+### Fixed
+- **S3 & Cloudflare R2 URL Cooking (400 Bad Request Fix)**: Resolved 400 Bad Request errors on Cloudflare R2 / S3 storage endpoints by routing URLs through `UrlHelper.cook_url`, `Discourse.store.cdn_url`, and applying configured S3 CDN domains (`s3_cdn_url`).
+- **Private S3/R2 Delivery Fallback**: Added fallback to Discourse's internal `upload.short_path` when accessing private Cloudflare R2 buckets without a CDN, ensuring images are safely delivered via Discourse's upload controller.
+- **Client Thumbnail Preservation**: `SaveToAlbumModal` now sends the currently visible post thumbnail URL on save, ensuring instant fallback preview availability.
+- **Image Error Auto-Recovery**: Photo grid images automatically attempt to fallback to the full image URL if a thumbnail fails to load.
+
+### Added
+- **Discourse Optimized Image Thumbnails**: Photo album grid now leverages Discourse's native optimized image derivatives (`upload.optimized_images`) instead of loading heavy raw originals, dramatically speeding up album viewing and saving bandwidth.
+
 ## [0.1.4-alpha] - 2026-11-02
 
 ### Fixed

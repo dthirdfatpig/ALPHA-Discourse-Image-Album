@@ -20,7 +20,7 @@ module ::DiscourseImageAlbum
       total_count = album.items.count
 
       items = album.items
-                   .includes(:upload)
+                   .includes(upload: :optimized_images)
                    .order(id: :desc)
                    .offset(offset)
                    .limit(limit)
@@ -73,6 +73,7 @@ module ::DiscourseImageAlbum
       return render_json_error(I18n.t("discourse_image_album.errors.album_not_found"), status: 404) unless album
 
       image_url = params[:image_url].to_s.strip
+      thumbnail_url = params[:thumbnail_url].to_s.strip.presence
       post_id = params[:post_id].presence
       post = Post.find_by(id: post_id) if post_id
 
@@ -81,9 +82,16 @@ module ::DiscourseImageAlbum
         upload = Upload.get_from_url(image_url)
       end
 
+      if upload.blank? && thumbnail_url.present?
+        upload = Upload.get_from_url(thumbnail_url)
+      end
+
       if upload.blank? && post.present?
         # Try matching upload from post
-        upload = post.uploads.find { |u| image_url.include?(u.sha1) || image_url.include?(u.url) }
+        upload = post.uploads.find do |u|
+          (image_url.present? && (image_url.include?(u.sha1) || image_url.include?(u.url))) ||
+          (thumbnail_url.present? && (thumbnail_url.include?(u.sha1) || thumbnail_url.include?(u.url)))
+        end
       end
 
       # Check if external hotlinks allowed when upload is nil
@@ -110,7 +118,8 @@ module ::DiscourseImageAlbum
         album_id: album.id,
         user_id: current_user.id,
         upload_id: upload&.id,
-        image_url: image_url,
+        image_url: image_url.presence || upload&.url,
+        thumbnail_url: thumbnail_url,
         title: params[:title].presence || post&.topic&.title,
         source_post_id: post&.id,
         source_topic_id: post&.topic_id
