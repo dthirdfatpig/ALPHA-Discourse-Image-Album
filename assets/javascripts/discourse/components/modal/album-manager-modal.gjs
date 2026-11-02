@@ -368,7 +368,7 @@ export default class AlbumManagerModal extends Component {
       <:body>
         <div class="album-sidebar">
           <div class="sidebar-header">
-            <h4>Albums</h4>
+            <h4>{{i18n "image_album.modal.albums_heading"}}</h4>
             <DButton
               @icon="folder-plus"
               @action={{fn this.openCreateAlbum false}}
@@ -381,19 +381,19 @@ export default class AlbumManagerModal extends Component {
             <div class="new-album-form" style="padding: 6px; margin-bottom: 8px;">
               <input
                 type="text"
-                placeholder={{if this.newAlbumIsSubAlbum "Sub-album name..." "Album name..."}}
+                placeholder={{if this.newAlbumIsSubAlbum (i18n "image_album.modal.sub_album_name_placeholder") (i18n "image_album.modal.album_name_placeholder")}}
                 value={{this.newAlbumName}}
                 {{on "input" this.onNewAlbumNameInput}}
                 style="width: 100%; margin-bottom: 6px;"
               />
               <div style="display: flex; gap: 4px;">
                 <DButton
-                  @label="Save"
+                  @label="image_album.modal.save"
                   @action={{this.submitCreateAlbum}}
                   class="btn-primary btn-small"
                 />
                 <DButton
-                  @label="Cancel"
+                  @label="image_album.modal.cancel"
                   @action={{this.cancelCreateAlbum}}
                   class="btn-flat btn-small"
                 />
@@ -423,7 +423,7 @@ export default class AlbumManagerModal extends Component {
           {{#if this.quota}}
             <div class="quota-box">
               <div class="quota-title">
-                <span>Storage & Limit</span>
+                <span>{{i18n "image_album.modal.storage_and_limit"}}</span>
                 <span>{{this.quotaPercent}}%</span>
               </div>
               <div class="progress-bar">
@@ -444,7 +444,7 @@ export default class AlbumManagerModal extends Component {
                 {{#if this.activeAlbum}}
                   {{this.activeAlbum.name}}
                 {{else}}
-                  Saved Photos
+                  {{i18n "image_album.modal.title"}}
                 {{/if}}
               </span>
               {{#if this.activeAlbum}}
@@ -521,15 +521,15 @@ export default class AlbumManagerModal extends Component {
 
           {{#if this.showMoveSelect}}
             <div style="padding: 10px 18px; background: var(--tertiary-very-low, #f0f7fb); display: flex; align-items: center; gap: 8px;">
-              <span>Move {{this.selectedCount}} photos to:</span>
+              <span>{{i18n "image_album.modal.move_to_prompt" count=this.selectedCount}}</span>
               <select {{on "change" this.onTargetAlbumChange}}>
-                <option value="">Select target album...</option>
+                <option value="">{{i18n "image_album.modal.select_target_album"}}</option>
                 {{#each this.otherAlbumsForMove as |tgt|}}
                   <option value={{tgt.id}}>{{tgt.name}}</option>
                 {{/each}}
               </select>
               <DButton
-                @label="Confirm Move"
+                @label="image_album.modal.confirm_move"
                 @action={{this.executeMove}}
                 @disabled={{not this.moveTargetAlbumId}}
                 class="btn-small btn-primary"
@@ -582,14 +582,14 @@ export default class AlbumManagerModal extends Component {
             {{#if (gt this.totalPages 1)}}
               <div class="pagination-controls">
                 <DButton
-                  @label="&laquo; Prev"
+                  @label="image_album.modal.prev_page"
                   @action={{this.prevPage}}
                   @disabled={{eq this.page 1}}
                   class="btn-small btn-flat"
                 />
-                <span>Page {{this.page}} of {{this.totalPages}}</span>
+                <span>{{i18n "image_album.modal.page_indicator" current=this.page total=this.totalPages}}</span>
                 <DButton
-                  @label="Next &raquo;"
+                  @label="image_album.modal.next_page"
                   @action={{this.nextPage}}
                   @disabled={{eq this.page this.totalPages}}
                   class="btn-small btn-flat"

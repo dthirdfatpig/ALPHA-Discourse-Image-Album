@@ -168,10 +168,10 @@ export default class AlbumUserOverrides extends Component {
           {{#if this.quota}}
             <div class="quota-summary-pills">
               <span class="pill">
-                <strong>Current Usage:</strong> {{this.quota.used_images}} photos ({{this.quota.used_mb}} MB)
+                <strong>{{i18n "image_album.admin.current_usage_label"}}</strong> {{this.quota.used_images}} photos ({{this.quota.used_mb}} MB)
               </span>
               <span class="pill">
-                <strong>Effective Limit:</strong> {{this.quota.max_images}} photos
+                <strong>{{i18n "image_album.admin.effective_limit_label"}}</strong> {{this.quota.max_images}} photos
               </span>
             </div>
           {{/if}}
@@ -182,7 +182,7 @@ export default class AlbumUserOverrides extends Component {
               <input
                 type="number"
                 min="0"
-                placeholder="Default based on Trust Level"
+                placeholder={{i18n "image_album.admin.max_images_placeholder"}}
                 value={{this.maxImages}}
                 {{on "input" this.onMaxImagesInput}}
               />
@@ -193,7 +193,7 @@ export default class AlbumUserOverrides extends Component {
               <input
                 type="number"
                 min="0"
-                placeholder="Default based on Global Setting"
+                placeholder={{i18n "image_album.admin.max_disk_mb_placeholder"}}
                 value={{this.maxDiskMb}}
                 {{on "input" this.onMaxDiskMbInput}}
               />

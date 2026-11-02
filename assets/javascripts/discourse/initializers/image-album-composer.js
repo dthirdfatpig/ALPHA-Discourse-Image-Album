@@ -20,9 +20,23 @@ export default {
       }
 
       api.onToolbarCreate((toolbar) => {
+        // Detect the exact group containing the emoji button
+        let targetGroup = "extras";
+        for (const g of toolbar.groups || []) {
+          if (Array.isArray(g.buttons)) {
+            const idx = g.buttons.findIndex(
+              (b) => b.id === "emoji" || b.icon === "far-smile" || b.icon === "smile"
+            );
+            if (idx !== -1) {
+              targetGroup = g.group;
+              break;
+            }
+          }
+        }
+
         toolbar.addButton({
           id: "image_album_saved_photos",
-          group: "insertions",
+          group: targetGroup,
           icon: "images",
           className: "image-album-composer-btn",
           title: "image_album.composer.saved_photos_button_title",
@@ -62,20 +76,40 @@ export default {
           },
         });
 
-        // Ensure button is positioned directly next to the emoji button
-        const insertionsGroup = toolbar.groups?.find((g) => g.group === "insertions");
-        if (insertionsGroup && Array.isArray(insertionsGroup.buttons)) {
-          const btnIdx = insertionsGroup.buttons.findIndex(
-            (b) => b.id === "image_album_saved_photos"
-          );
-          const emojiIdx = insertionsGroup.buttons.findIndex(
-            (b) => b.id === "emoji" || b.icon === "far-smile" || b.icon === "smile"
-          );
+        // Position the button on the right side of the emoji button
+        for (const g of toolbar.groups || []) {
+          if (Array.isArray(g.buttons)) {
+            const btnIdx = g.buttons.findIndex(
+              (b) => b.id === "image_album_saved_photos"
+            );
+            const eIdx = g.buttons.findIndex(
+              (b) => b.id === "emoji" || b.icon === "far-smile" || b.icon === "smile"
+            );
 
-          if (btnIdx !== -1 && emojiIdx !== -1) {
-            const [albumBtn] = insertionsGroup.buttons.splice(btnIdx, 1);
-            insertionsGroup.buttons.splice(emojiIdx + 1, 0, albumBtn);
+            if (btnIdx !== -1 && eIdx !== -1) {
+              const [albumBtn] = g.buttons.splice(btnIdx, 1);
+              const updatedEIdx = g.buttons.findIndex(
+                (b) => b.id === "emoji" || b.icon === "far-smile" || b.icon === "smile"
+              );
+              g.buttons.splice(updatedEIdx + 1, 0, albumBtn);
+              break;
+            }
           }
+        }
+
+        // DOM safeguard: move button next to emoji button in DOM once rendered
+        if (typeof requestAnimationFrame === "function") {
+          requestAnimationFrame(() => {
+            const emojiBtn = document.querySelector(
+              ".d-editor-button-bar .btn.emoji, .d-editor-button-bar button[data-format='emoji']"
+            );
+            const albumBtn = document.querySelector(
+              ".d-editor-button-bar .image-album-composer-btn, .d-editor-button-bar button[data-format='image_album_saved_photos']"
+            );
+            if (emojiBtn && albumBtn && emojiBtn.parentNode) {
+              emojiBtn.parentNode.insertBefore(albumBtn, emojiBtn.nextSibling);
+            }
+          });
         }
       });
     });

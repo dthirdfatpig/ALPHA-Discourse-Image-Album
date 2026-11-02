@@ -23,3 +23,7 @@ DiscourseImageAlbum::Engine.routes.draw do
   post "/admin/overrides" => "admin#save_override"
   delete "/admin/overrides/:user_id" => "admin#delete_override"
 end
+
+Discourse::Application.routes.draw do
+  mount ::DiscourseImageAlbum::Engine, at: "/image-album"
+end

@@ -141,31 +141,31 @@ export default class SaveToAlbumModal extends Component {
           <div class="photo-preview-wrap">
             <img src={{this.photoUrl}} alt="Preview" />
             <div class="preview-info">
-              <strong>Save Photo</strong>
+              <strong>{{i18n "image_album.save_modal.preview_heading"}}</strong>
               <div style="font-size: 11px; color: var(--primary-medium); margin-top: 2px;">
-                Add this image to your private albums to view or re-use later.
+                {{i18n "image_album.save_modal.preview_desc"}}
               </div>
             </div>
           </div>
 
           {{#if this.isCreatingInline}}
             <div class="form-group">
-              <label>New Album Name</label>
+              <label>{{i18n "image_album.save_modal.new_album_label"}}</label>
               <input
                 type="text"
                 value={{this.newAlbumName}}
                 {{on "input" this.onNewAlbumNameInput}}
-                placeholder="e.g. My Favorites, Wallpapers..."
+                placeholder={{i18n "image_album.save_modal.new_album_placeholder"}}
               />
               <div style="margin-top: 6px; display: flex; gap: 6px;">
                 <DButton
-                  @label="Create"
+                  @label="image_album.modal.create"
                   @action={{this.createAlbumInline}}
                   @disabled={{not this.newAlbumName}}
                   class="btn-primary btn-small"
                 />
                 <DButton
-                  @label="Cancel"
+                  @label="image_album.modal.cancel"
                   @action={{this.toggleCreateInline}}
                   class="btn-flat btn-small"
                 />
@@ -192,7 +192,7 @@ export default class SaveToAlbumModal extends Component {
               type="text"
               value={{this.title}}
               {{on "input" this.onTitleInput}}
-              placeholder="Optional photo title..."
+              placeholder={{i18n "image_album.save_modal.photo_title_placeholder"}}
             />
           </div>
         </div>
@@ -206,7 +206,7 @@ export default class SaveToAlbumModal extends Component {
           class="btn-primary"
         />
         <DButton
-          @label="Cancel"
+          @label="image_album.modal.cancel"
           @action={{@closeModal}}
           @disabled={{this.isSaving}}
           class="btn-flat"
