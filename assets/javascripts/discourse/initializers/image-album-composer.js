@@ -62,12 +62,53 @@ export default {
                   }
 
                   const markdownSnippets = selectedItems
-                    .map((item) => item.markdown_syntax)
+                    .map(
+                      (item) =>
+                        item.markdown_syntax ||
+                        (item.url ? `![${item.title || "image"}](${item.url})` : "")
+                    )
                     .filter(Boolean)
                     .join("\n\n");
 
                   if (markdownSnippets) {
-                    toolbarEvent.addText("\n" + markdownSnippets + "\n");
+                    let inserted = false;
+                    if (toolbarEvent && typeof toolbarEvent.addText === "function") {
+                      try {
+                        toolbarEvent.addText("\n" + markdownSnippets + "\n");
+                        inserted = true;
+                      } catch (e) {
+                        // Fallback below
+                      }
+                    }
+
+                    if (!inserted) {
+                      const composer = api.container.lookup("service:composer");
+                      const model = composer?.model;
+                      if (model) {
+                        const current = model.reply || "";
+                        if (typeof model.set === "function") {
+                          model.set(
+                            "reply",
+                            (current ? current + "\n\n" : "") + markdownSnippets + "\n"
+                          );
+                        } else {
+                          model.reply =
+                            (current ? current + "\n\n" : "") + markdownSnippets + "\n";
+                        }
+                        inserted = true;
+                      }
+                    }
+
+                    if (!inserted) {
+                      try {
+                        const appEvents = api.container.lookup("service:app-events");
+                        if (appEvents) {
+                          appEvents.trigger("composer:insert-block", markdownSnippets);
+                        }
+                      } catch (e) {
+                        // ignore
+                      }
+                    }
                   }
                   return true;
                 },

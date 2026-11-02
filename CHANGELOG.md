@@ -5,6 +5,15 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4-alpha] - 2026-11-02
+
+### Fixed
+- **Photo Grid Glimmer Render Fix**: Fixed `TypeError: Method Set.prototype.has called on incompatible receiver undefined` by binding selection check to component action `isItemSelected` instead of detached template helper execution.
+- **Composer Markdown Insertion Fallback**: Added fallback to `composer.model` reply attribute to ensure images are always inserted into posts even if the toolbar event context is lost.
+
+### Added
+- **Double-Click Quick Insert**: Users can now double-click any photo card in composer mode to immediately insert it into their topic.
+
 ## [0.1.3-alpha] - 2026-11-02
 
 ### Fixed

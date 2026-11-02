@@ -145,6 +145,21 @@ export default class AlbumManagerModal extends Component {
   }
 
   @action
+  isItemSelected(itemId) {
+    return Boolean(this.selectedItemIds && this.selectedItemIds.has(itemId));
+  }
+
+  @action
+  onCardDoubleClick(item) {
+    if (this.isComposerMode && this.args.model?.onInsert) {
+      const ok = this.args.model.onInsert([item]);
+      if (ok !== false) {
+        this.args.closeModal();
+      }
+    }
+  }
+
+  @action
   toggleItem(itemId) {
     const updated = new Set(this.selectedItemIds);
     if (updated.has(itemId)) {
@@ -552,11 +567,12 @@ export default class AlbumManagerModal extends Component {
               <div class="photo-grid">
                 {{#each this.items as |item|}}
                   <div
-                    class="photo-card {{if (this.selectedItemIds.has item.id) 'selected'}}"
+                    class="photo-card {{if (this.isItemSelected item.id) 'selected'}}"
                     {{on "click" (fn this.toggleItem item.id)}}
+                    {{on "dblclick" (fn this.onCardDoubleClick item)}}
                   >
                     <div class="selection-checkbox">
-                      {{#if (this.selectedItemIds.has item.id)}}
+                      {{#if (this.isItemSelected item.id)}}
                         {{icon "check"}}
                       {{/if}}
                     </div>
