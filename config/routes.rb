@@ -19,6 +19,7 @@ DiscourseImageAlbum::Engine.routes.draw do
 
   # Admin overrides
   get "/admin/overrides" => "admin#index"
+  get "/admin/overrides/:user_id" => "admin#show"
   post "/admin/overrides" => "admin#save_override"
   delete "/admin/overrides/:user_id" => "admin#delete_override"
 end

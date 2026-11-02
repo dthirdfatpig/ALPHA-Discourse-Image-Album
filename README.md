@@ -1,6 +1,6 @@
 # ALPHA Discourse Image Album
 
-[![Version](https://img.shields.io/badge/version-0.1.0--alpha-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.1.1--alpha-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Discourse Compatibility](https://img.shields.io/badge/discourse-2.8%2B%20%7C%203.x%20%7C%204.x-success.svg)](https://www.discourse.org)
 [![AI Generated](https://img.shields.io/badge/built%20with-AI-blueviolet.svg)](#-ai-creation-disclosure)
@@ -81,8 +81,15 @@ Configure under Discourse Admin &rarr; **Settings &rarr; Plugins &rarr; `image_a
 | `image_album_max_bulk_selection` | `100` | Maximum items selectable in a single bulk operation. |
 | `image_album_allow_external_hotlinks` | `true` | Allow bookmarking external image URLs to albums. |
 
-### Admin Custom Overrides
-Admins can override global storage and image count limits for specific VIPs or moderators via the plugin override API (`/image-album/admin/overrides`).
+### 👑 How Admins Can Configure Limits for Specific Users
+Admins can easily override global storage and image count limits for specific users:
+1. Navigate to Discourse **Admin** &rarr; **Users** &rarr; click on the desired user (e.g. `/admin/users/123/username`).
+2. Under the user details, locate the dedicated **Photo Album Quotas** card.
+3. Configure custom limits:
+   - **Max Images**: Enter an image limit (e.g., `10000`) to override the user's Trust Level limit, or leave blank to follow site defaults.
+   - **Max Storage (MB)**: Enter custom disk quota (e.g. `5120` for 5GB), or leave blank.
+   - **Allow ZIP Downloads**: Choose *Site Default*, *Always Allow*, or *Always Deny*.
+4. Click **Save Changes**. The custom limits will take effect immediately. To revert to defaults at any time, click **Remove Custom Limits**.
 
 ---
 

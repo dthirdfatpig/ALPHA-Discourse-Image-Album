@@ -5,6 +5,17 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1-alpha] - 2026-11-02
+
+### Fixed
+- **Bootbox Dependency Resolution**: Removed legacy `bootbox` module dependency that caused plugin asset bundle evaluation failure on modern Discourse instances.
+
+### Changed
+- **Composer Button Placement**: Positioned the "Saved Photos" toolbar button directly next to the emoji button on the main toolbar row, with permanent visibility rules to prevent collapsing into the options popup menu.
+
+### Added
+- **Admin User Details UI Connector**: Added a native `admin-user-details` panel on user admin profiles (`/admin/users/:id/:username`) allowing forum administrators to configure custom per-user image limits, disk space quotas, and ZIP download permissions.
+
 ## [0.1.0-alpha] - 2026-11-02
 
 ### Added

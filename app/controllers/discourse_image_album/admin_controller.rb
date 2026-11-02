@@ -8,7 +8,12 @@ module ::DiscourseImageAlbum
     before_action :ensure_admin
 
     def index
-      overrides = ImageAlbumUserOverride.includes(:user).all
+      scope = ImageAlbumUserOverride.includes(:user)
+      if params[:user_id].present?
+        scope = scope.where(user_id: params[:user_id])
+      end
+
+      overrides = scope.all
       data = overrides.map do |ov|
         {
           user_id: ov.user_id,
@@ -24,6 +29,25 @@ module ::DiscourseImageAlbum
       render json: { overrides: data }
     end
 
+    def show
+      user = User.find_by(id: params[:user_id] || params[:id])
+      return render_json_error("User not found", status: 404) unless user
+
+      override = ImageAlbumUserOverride.find_by(user_id: user.id)
+      quota = QuotaCalculator.for_user(user).to_h
+
+      render json: {
+        user_id: user.id,
+        username: user.username,
+        override: override ? {
+          max_images: override.max_images,
+          max_disk_mb: override.max_disk_mb,
+          can_download_zip: override.can_download_zip
+        } : nil,
+        quota: quota
+      }
+    end
+
     def save_override
       user = if params[:user_id].present?
         User.find_by(id: params[:user_id])
@@ -36,7 +60,11 @@ module ::DiscourseImageAlbum
       override = ImageAlbumUserOverride.find_or_initialize_by(user_id: user.id)
       override.max_images = params[:max_images].presence&.to_i
       override.max_disk_mb = params[:max_disk_mb].presence&.to_i
-      override.can_download_zip = params[:can_download_zip] if params.key?(:can_download_zip)
+
+      if params.key?(:can_download_zip)
+        val = params[:can_download_zip]
+        override.can_download_zip = (val.nil? || val === "") ? nil : (val.to_s == "true")
+      end
 
       if override.save
         render json: {
