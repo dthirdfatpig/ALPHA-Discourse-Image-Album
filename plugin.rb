@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: ALPHA-Discourse-Image-Album
 # about: Personal photo album system for Discourse users with sub-albums, composer integration, 1-click photo saving, bulk management, and comprehensive admin quotas.
-# version: 0.1.2-alpha
+# version: 0.1.3-alpha
 # authors: AI Assistant & dthirdfatpig
 # url: https://github.com/dthirdfatpig/ALPHA-Discourse-Image-Album
 # required_version: 2.7.0
@@ -23,9 +23,6 @@ register_svg_icon "plus"
 register_svg_icon "layer-group"
 register_svg_icon "check"
 
-# Top-level engine definition required for Rails boot-time engine detection
-require_relative "lib/discourse_image_album/engine"
-
 after_initialize do
   # Fix for uppercase plugin names and strict stylesheet MIME checking in modern browsers.
   Discourse::Application.routes.prepend do
@@ -44,6 +41,7 @@ after_initialize do
       format: true
   end
 
+  require_relative "lib/discourse_image_album/engine"
   require_relative "lib/discourse_image_album/quota_calculator"
   require_relative "lib/discourse_image_album/zip_exporter"
   require_relative "app/models/discourse_image_album/image_album"
@@ -55,36 +53,10 @@ after_initialize do
   require_relative "app/controllers/discourse_image_album/albums_controller"
   require_relative "app/controllers/discourse_image_album/items_controller"
   require_relative "app/controllers/discourse_image_album/admin_controller"
-
-  # Load engine routes
   require_relative "config/routes"
 
-  # Mount engine AND map application scope routes to guarantee zero 404 regardless of engine boot timing
   Discourse::Application.routes.append do
     mount ::DiscourseImageAlbum::Engine, at: "/image-album"
-
-    scope "/image-album", module: "discourse_image_album" do
-      get "/albums" => "albums#index"
-      post "/albums" => "albums#create"
-      get "/albums/:id" => "albums#show"
-      put "/albums/:id" => "albums#update"
-      delete "/albums/:id" => "albums#destroy"
-      get "/albums/:id/download" => "albums#download"
-
-      get "/albums/:album_id/items" => "items#index"
-      post "/albums/:album_id/items" => "items#create"
-      post "/items/save-from-post" => "items#save_from_post"
-      post "/items/move" => "items#move"
-      post "/items/delete" => "items#destroy_multiple"
-      delete "/items/:id" => "items#destroy"
-
-      get "/quota" => "albums#quota"
-
-      get "/admin/overrides" => "admin#index"
-      get "/admin/overrides/:user_id" => "admin#show"
-      post "/admin/overrides" => "admin#save_override"
-      delete "/admin/overrides/:user_id" => "admin#delete_override"
-    end
   end
 
   add_to_serializer(:current_user, :can_use_image_albums) do
