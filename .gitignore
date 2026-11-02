@@ -1,0 +1,19 @@
+# Ignore bundler config and cached gems
+/.bundle/
+/vendor/bundle/
+
+# Ignore log files and temp files
+*.log
+/tmp/
+.byebug_history
+.pry_history
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node modules / test outputs
+/node_modules/
+/dist/
+coverage/

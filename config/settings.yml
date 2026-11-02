@@ -1,0 +1,97 @@
+plugins:
+  image_album_enabled:
+    default: true
+    client: true
+    description: "Enable or disable the Discourse Image Album plugin."
+
+  image_album_max_images_per_album:
+    default: 5000
+    min: 10
+    max: 100000
+    client: true
+    description: "Maximum number of pictures allowed in a single album (supports 5,000+ images per album)."
+
+  image_album_max_total_images_per_user:
+    default: 20000
+    min: 10
+    max: 500000
+    client: true
+    description: "Maximum total pictures a single user can store across all of their albums."
+
+  image_album_max_disk_quota_mb:
+    default: 2048
+    min: 0
+    description: "Maximum disk space quota (in Megabytes) per user for photo albums. Set to 0 for unlimited."
+
+  image_album_allow_sub_albums:
+    default: true
+    client: true
+    description: "Allow users to organize pictures into nested sub-albums."
+
+  image_album_max_album_depth:
+    default: 5
+    min: 1
+    max: 10
+    client: true
+    description: "Maximum hierarchy nesting depth allowed for sub-albums (e.g. 1 = root only, 5 = up to 5 levels deep)."
+
+  image_album_max_albums_per_user:
+    default: 100
+    min: 1
+    max: 1000
+    client: true
+    description: "Maximum total number of albums and sub-albums a user can create."
+
+  image_album_enable_whole_album_download:
+    default: true
+    client: true
+    description: "Allow users to download an entire photo album as a compressed ZIP file."
+
+  image_album_min_trust_level_to_use:
+    default: 0
+    min: 0
+    max: 4
+    client: true
+    description: "Minimum trust level required to view and use personal photo albums."
+
+  image_album_max_images_tl0:
+    default: 100
+    min: 0
+    description: "Maximum total pictures allowed for Trust Level 0 (new) users."
+
+  image_album_max_images_tl1:
+    default: 500
+    min: 0
+    description: "Maximum total pictures allowed for Trust Level 1 (basic) users."
+
+  image_album_max_images_tl2:
+    default: 2500
+    min: 0
+    description: "Maximum total pictures allowed for Trust Level 2 (member) users."
+
+  image_album_max_images_tl3:
+    default: 10000
+    min: 0
+    description: "Maximum total pictures allowed for Trust Level 3 (regular) users."
+
+  image_album_max_images_tl4:
+    default: 50000
+    min: 0
+    description: "Maximum total pictures allowed for Trust Level 4 (leader) users."
+
+  image_album_allow_admin_custom_quotas:
+    default: true
+    client: true
+    description: "Allow site administrators to define custom quota overrides for individual users."
+
+  image_album_max_bulk_selection:
+    default: 100
+    min: 5
+    max: 500
+    client: true
+    description: "Maximum number of pictures that can be selected simultaneously for bulk operations (move, delete, insert)."
+
+  image_album_allow_external_hotlinks:
+    default: true
+    client: true
+    description: "Allow bookmarking and saving external image URLs directly into albums."
