@@ -1,7 +1,7 @@
 # frozen_string_literal: true
-# name: ALPHA-Discourse-Image-Album
+# name: discourse-image-album
 # about: Personal photo album system for Discourse users with sub-albums, composer integration, 1-click photo saving, bulk management, and comprehensive admin quotas.
-# version: 0.1.6-alpha
+# version: 0.1.7-alpha
 # authors: AI Assistant & dthirdfatpig
 # url: https://github.com/dthirdfatpig/ALPHA-Discourse-Image-Album
 # required_version: 2.7.0
@@ -23,6 +23,8 @@ register_svg_icon "bookmark"
 register_svg_icon "plus"
 register_svg_icon "layer-group"
 register_svg_icon "check"
+register_svg_icon "eye"
+register_svg_icon "xmark"
 
 after_initialize do
   # Fix for uppercase plugin names and strict stylesheet MIME checking in modern browsers.

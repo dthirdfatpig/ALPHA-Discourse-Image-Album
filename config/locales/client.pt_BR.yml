@@ -47,6 +47,10 @@ pt_BR:
         page_indicator: "Página %{current} de %{total}"
         prev_page: "« Anterior"
         next_page: "Próxima »"
+        preview_title: "Visualizar Foto"
+        select: "Selecionar"
+        selected: "Selecionado"
+        preview_tooltip: "Segure para visualizar"
         search_placeholder: "Pesquisar álbuns..."
       save_modal:
         title: "Salvar Foto no Álbum"

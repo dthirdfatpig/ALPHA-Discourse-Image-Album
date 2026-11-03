@@ -47,6 +47,10 @@ en:
         page_indicator: "Page %{current} of %{total}"
         prev_page: "« Prev"
         next_page: "Next »"
+        preview_title: "Photo Preview"
+        select: "Select"
+        selected: "Selected"
+        preview_tooltip: "Hold to preview"
         search_placeholder: "Search albums..."
       save_modal:
         title: "Save Photo to Album"

@@ -5,6 +5,17 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7-alpha] - 2026-11-02
+
+### Added
+- **Hold-to-Preview Enlarged Overlay**: Long-press on mobile touch or press-and-hold on desktop over any photo in the album to display an enlarged high-resolution preview dialog. Inspect fine details, view dimensions, toggle selection, or insert directly into post without leaving preview.
+- **Quick Preview Action**: Added an eye icon button on each photo card for an instant single-click preview alternative.
+
+### Changed
+- **Gallery Grid Sizing & Density**:
+  - Desktop thumbnail grid resized to dynamic columns (`minmax(130px, 1fr)`) with 10px spacing for clarity.
+  - Mobile layout updated to 4 columns edge-to-edge with 3px spacing, matching native gallery applications and making photos significantly clearer.
+
 ## [0.1.6-alpha] - 2026-11-02
 
 ### Added

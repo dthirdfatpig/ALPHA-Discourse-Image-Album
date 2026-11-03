@@ -22,6 +22,12 @@ export default class AlbumManagerModal extends Component {
   @tracked isLoading = true;
   @tracked isLoadingItems = false;
   @tracked quota = null;
+  @tracked previewItem = null;
+
+  holdTimer = null;
+  holdStartX = 0;
+  holdStartY = 0;
+  isHolding = false;
 
   // Pagination
   @tracked page = 1;
@@ -147,6 +153,94 @@ export default class AlbumManagerModal extends Component {
   @action
   isItemSelected(itemId) {
     return Boolean(this.selectedItemIds && this.selectedItemIds.has(itemId));
+  }
+
+  @action
+  onCardPointerDown(item, event) {
+    if (event.button !== undefined && event.button !== 0) {
+      return;
+    }
+    this.holdStartX = event.clientX;
+    this.holdStartY = event.clientY;
+    this.isHolding = false;
+
+    clearTimeout(this.holdTimer);
+    this.holdTimer = setTimeout(() => {
+      this.isHolding = true;
+      this.previewItem = item;
+    }, 280);
+  }
+
+  @action
+  onCardPointerMove(event) {
+    if (!this.holdTimer) {
+      return;
+    }
+    const dx = Math.abs(event.clientX - this.holdStartX);
+    const dy = Math.abs(event.clientY - this.holdStartY);
+    if (dx > 10 || dy > 10) {
+      clearTimeout(this.holdTimer);
+      this.holdTimer = null;
+    }
+  }
+
+  @action
+  onCardPointerUp() {
+    clearTimeout(this.holdTimer);
+    this.holdTimer = null;
+  }
+
+  @action
+  onCardPointerCancel() {
+    clearTimeout(this.holdTimer);
+    this.holdTimer = null;
+  }
+
+  @action
+  onCardContextMenu(event) {
+    if (this.isHolding || this.previewItem) {
+      event?.preventDefault?.();
+    }
+  }
+
+  @action
+  onCardClick(item, event) {
+    if (this.isHolding) {
+      this.isHolding = false;
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      return;
+    }
+    this.toggleItem(item.id);
+  }
+
+  @action
+  openPreview(item, event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    this.previewItem = item;
+  }
+
+  @action
+  closePreview() {
+    this.previewItem = null;
+    this.isHolding = false;
+  }
+
+  @action
+  insertPreviewItem(item) {
+    if (this.isComposerMode && this.args.model?.onInsert) {
+      const ok = this.args.model.onInsert([item]);
+      if (ok !== false) {
+        this.previewItem = null;
+        this.args.closeModal();
+      }
+    }
+  }
+
+  @action
+  stopPropagation(event) {
+    event?.stopPropagation?.();
   }
 
   @action
@@ -575,7 +669,12 @@ export default class AlbumManagerModal extends Component {
                 {{#each this.items as |item|}}
                   <div
                     class="photo-card {{if (this.isItemSelected item.id) 'selected'}}"
-                    {{on "click" (fn this.toggleItem item.id)}}
+                    {{on "pointerdown" (fn this.onCardPointerDown item)}}
+                    {{on "pointermove" this.onCardPointerMove}}
+                    {{on "pointerup" this.onCardPointerUp}}
+                    {{on "pointercancel" this.onCardPointerCancel}}
+                    {{on "contextmenu" this.onCardContextMenu}}
+                    {{on "click" (fn this.onCardClick item)}}
                     {{on "dblclick" (fn this.onCardDoubleClick item)}}
                   >
                     <div class="selection-checkbox">
@@ -583,6 +682,14 @@ export default class AlbumManagerModal extends Component {
                         {{icon "check"}}
                       {{/if}}
                     </div>
+                    <button
+                      type="button"
+                      class="preview-eye-btn"
+                      title={{i18n "image_album.modal.preview_tooltip"}}
+                      {{on "click" (fn this.openPreview item)}}
+                    >
+                      {{icon "eye"}}
+                    </button>
                     <img
                       src={{item.thumb_url}}
                       alt={{item.title}}
@@ -626,6 +733,45 @@ export default class AlbumManagerModal extends Component {
             {{/if}}
           </div>
         </div>
+
+        {{#if this.previewItem}}
+          <div class="image-album-hold-preview" {{on "click" this.closePreview}}>
+            <div class="preview-dialog" {{on "click" this.stopPropagation}}>
+              <div class="preview-header">
+                <span class="preview-title">{{if this.previewItem.title this.previewItem.title (i18n "image_album.modal.preview_title")}}</span>
+                <button type="button" class="btn-close-preview" {{on "click" this.closePreview}}>
+                  {{icon "xmark"}}
+                </button>
+              </div>
+              <div class="preview-img-wrap">
+                <img src={{this.previewItem.url}} alt={{this.previewItem.title}} />
+              </div>
+              <div class="preview-footer">
+                <div class="preview-dimensions">
+                  {{#if this.previewItem.width}}
+                    <span>{{this.previewItem.width}} × {{this.previewItem.height}}</span>
+                  {{/if}}
+                </div>
+                <div class="preview-actions">
+                  <DButton
+                    @icon="check"
+                    @label={{if (this.isItemSelected this.previewItem.id) "image_album.modal.selected" "image_album.modal.select"}}
+                    @action={{fn this.toggleItem this.previewItem.id}}
+                    class="btn-small {{if (this.isItemSelected this.previewItem.id) 'btn-primary' 'btn-default'}}"
+                  />
+                  {{#if this.isComposerMode}}
+                    <DButton
+                      @icon="images"
+                      @label="image_album.modal.insert_to_post"
+                      @action={{fn this.insertPreviewItem this.previewItem}}
+                      class="btn-small btn-primary"
+                    />
+                  {{/if}}
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/if}}
       </:body>
     </DModal>
   </template>
