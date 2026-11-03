@@ -5,6 +5,13 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8-alpha] - 2026-11-02
+
+### Changed
+- **Desktop Gallery Grid (5+ Columns Guaranteed)**: Enforced a minimum of 5 columns on desktop gallery views, widening modal container space (`max-width: 1100px`) and streamlining sidebar dimensions to guarantee crisp, well-proportioned thumbnails across all desktop display resolutions.
+- **Desktop Quick Eye Removed**: Removed the floating eye icon on desktop photo cards in favor of a clean card aesthetic and the press-and-hold preview gesture.
+- **Mobile Quick Eye Retained**: Maintained the quick eye button exclusively on mobile touch viewports for fast one-tap inspection alongside the 4-column edge-to-edge layout.
+
 ## [0.1.7-alpha] - 2026-11-02
 
 ### Added

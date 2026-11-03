@@ -84,9 +84,13 @@
 
 // Album Manager Modal
 .album-manager-modal {
-  .modal-inner-container {
-    max-width: 1020px;
-    width: 95vw;
+  --modal-max-width: 1100px;
+  --d-modal-width: 1100px;
+
+  .modal-inner-container,
+  .d-modal__container {
+    max-width: 1100px !important;
+    width: 92vw !important;
     height: 85vh;
     display: flex;
     flex-direction: column;
@@ -102,8 +106,9 @@
 
   // Sidebar: Album Tree Navigation
   .album-sidebar {
-    width: 260px;
-    min-width: 240px;
+    width: 220px;
+    min-width: 200px;
+    flex-shrink: 0;
     border-right: 1px solid var(--primary-low, #e6e6e6);
     background: var(--secondary-low, #fafafa);
     display: flex;
@@ -282,8 +287,12 @@
 
       .photo-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+
+        @media (min-width: 1450px) {
+          grid-template-columns: repeat(6, 1fr);
+        }
       }
 
       .empty-album-state {
@@ -402,6 +411,7 @@
     }
 
     .preview-eye-btn {
+      display: none; // Hidden on desktop: hold-to-preview gesture is used
       position: absolute;
       top: 6px;
       right: 6px;
@@ -412,7 +422,6 @@
       background: rgba(0, 0, 0, 0.55);
       border: 1px solid rgba(255, 255, 255, 0.6);
       color: #ffffff;
-      display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
@@ -553,6 +562,9 @@
         }
 
         .preview-eye-btn {
+          display: flex; // Kept active on mobile for quick tap preview
+          align-items: center;
+          justify-content: center;
           top: 3px;
           right: 3px;
           width: 18px;
@@ -599,6 +611,9 @@
       }
 
       .preview-eye-btn {
+        display: flex !important; // Kept active on mobile for quick tap preview
+        align-items: center;
+        justify-content: center;
         top: 3px;
         right: 3px;
         width: 18px;
