@@ -38,6 +38,8 @@ export default class AlbumManagerModal extends Component {
   @tracked isCreatingAlbum = false;
   @tracked newAlbumName = "";
   @tracked newAlbumIsSubAlbum = false;
+  @tracked isRenamingAlbum = false;
+  @tracked renameAlbumName = "";
 
   // Bulk move state
   @tracked showMoveSelect = false;
@@ -146,6 +148,7 @@ export default class AlbumManagerModal extends Component {
   @action
   async selectAlbum(albumId) {
     this.activeAlbumId = albumId;
+    this.isRenamingAlbum = false;
     this.page = 1;
     await this.loadItems(albumId, 1);
   }
@@ -338,6 +341,61 @@ export default class AlbumManagerModal extends Component {
         duration: "short",
         data: { message: `Album "${name}" created.` },
       });
+    } catch (e) {
+      popupAjaxError(e);
+    }
+  }
+
+  @action
+  openRenameAlbum() {
+    if (!this.activeAlbum) {
+      return;
+    }
+    this.renameAlbumName = this.activeAlbum.name;
+    this.isRenamingAlbum = true;
+  }
+
+  @action
+  cancelRenameAlbum() {
+    this.isRenamingAlbum = false;
+    this.renameAlbumName = "";
+  }
+
+  @action
+  onRenameAlbumNameInput(e) {
+    this.renameAlbumName = e.target.value;
+  }
+
+  @action
+  onRenameKeyDown(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      this.submitRenameAlbum();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      this.cancelRenameAlbum();
+    }
+  }
+
+  @action
+  async submitRenameAlbum() {
+    const name = this.renameAlbumName.trim();
+    if (!name || !this.activeAlbumId) {
+      return;
+    }
+
+    try {
+      await ajax(`/image-album/albums/${this.activeAlbumId}`, {
+        type: "PUT",
+        data: { name },
+      });
+
+      this.isRenamingAlbum = false;
+      this.toasts.success({
+        duration: "short",
+        data: { message: `Album renamed to "${name}".` },
+      });
+      await this.loadAlbums();
     } catch (e) {
       popupAjaxError(e);
     }
@@ -556,26 +614,58 @@ export default class AlbumManagerModal extends Component {
         <div class="album-content">
           <div class="album-toolbar">
             <div class="album-breadcrumbs">
-              <span class="bc-item">
+              {{#if this.isRenamingAlbum}}
+                <div class="rename-album-form" style="display: flex; align-items: center; gap: 6px;">
+                  <input
+                    type="text"
+                    value={{this.renameAlbumName}}
+                    {{on "input" this.onRenameAlbumNameInput}}
+                    {{on "keydown" this.onRenameKeyDown}}
+                    placeholder={{i18n "image_album.modal.rename_album_placeholder"}}
+                    style="margin-bottom: 0; padding: 3px 8px; font-size: 13px; height: 30px; width: 180px;"
+                    autofocus
+                  />
+                  <DButton
+                    @icon="check"
+                    @action={{this.submitRenameAlbum}}
+                    class="btn-small btn-primary"
+                    @title="image_album.modal.save"
+                  />
+                  <DButton
+                    @icon="xmark"
+                    @action={{this.cancelRenameAlbum}}
+                    class="btn-small btn-flat"
+                    @title="image_album.modal.cancel"
+                  />
+                </div>
+              {{else}}
+                <span class="bc-item">
+                  {{#if this.activeAlbum}}
+                    {{this.activeAlbum.name}}
+                  {{else}}
+                    {{i18n "image_album.modal.title"}}
+                  {{/if}}
+                </span>
                 {{#if this.activeAlbum}}
-                  {{this.activeAlbum.name}}
-                {{else}}
-                  {{i18n "image_album.modal.title"}}
+                  <DButton
+                    @icon="pencil"
+                    @action={{this.openRenameAlbum}}
+                    @title="image_album.modal.rename_album"
+                    class="btn-small btn-flat btn-rename-album"
+                  />
+                  <DButton
+                    @icon="plus"
+                    @label="image_album.modal.new_sub_album"
+                    @action={{fn this.openCreateAlbum true}}
+                    class="btn-small btn-flat"
+                  />
+                  <DButton
+                    @icon="trash-can"
+                    @action={{this.deleteActiveAlbum}}
+                    @title="image_album.modal.delete_album"
+                    class="btn-small btn-danger btn-flat"
+                  />
                 {{/if}}
-              </span>
-              {{#if this.activeAlbum}}
-                <DButton
-                  @icon="plus"
-                  @label="image_album.modal.new_sub_album"
-                  @action={{fn this.openCreateAlbum true}}
-                  class="btn-small btn-flat"
-                />
-                <DButton
-                  @icon="trash-can"
-                  @action={{this.deleteActiveAlbum}}
-                  @title="image_album.modal.delete_album"
-                  class="btn-small btn-danger btn-flat"
-                />
               {{/if}}
             </div>
 

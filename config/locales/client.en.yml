@@ -14,6 +14,8 @@ en:
         new_album: "New Album"
         new_sub_album: "New Sub-Album"
         edit_album: "Edit Album"
+        rename_album: "Rename Album"
+        rename_album_placeholder: "New album name..."
         delete_album: "Delete Album"
         album_name_placeholder: "Album name..."
         sub_album_name_placeholder: "Sub-album name..."

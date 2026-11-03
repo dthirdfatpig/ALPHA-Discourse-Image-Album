@@ -5,6 +5,14 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.10-alpha] - 2026-11-02
+
+### Added
+- **Album Rename Action**: Added a rename button (`pencil` icon) to the active album breadcrumbs toolbar, allowing users to rename any album inline with instant validation, keyboard shortcuts (Enter to save, Escape to cancel), and backend synchronization.
+
+### Changed
+- **Album Selection Background Styling**: Replaced the dull gray sidebar and drawer background with clean white theme surfaces (`var(--secondary)`), and styled selected albums with prominent theme accent highlighting (`var(--tertiary)`) for clear visual contrast on both desktop and mobile.
+
 ## [0.1.9-alpha] - 2026-11-02
 
 ### Fixed

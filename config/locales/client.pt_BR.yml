@@ -14,6 +14,8 @@ pt_BR:
         new_album: "Novo Álbum"
         new_sub_album: "Novo Subálbum"
         edit_album: "Editar Álbum"
+        rename_album: "Renomear Álbum"
+        rename_album_placeholder: "Novo nome do álbum..."
         delete_album: "Excluir Álbum"
         album_name_placeholder: "Nome do álbum..."
         sub_album_name_placeholder: "Nome do subálbum..."
