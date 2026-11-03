@@ -5,6 +5,14 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9-alpha] - 2026-11-02
+
+### Fixed
+- **Mobile Modal Layout & Viewport Centering**: Scoped desktop modal width constraints strictly to desktop viewports (`@media (min-width: 768px)`), fixing an issue where the mobile modal could become constrained and offset to the left. Mobile viewports now cleanly expand to 100vw edge-to-edge.
+
+### Changed
+- **Mobile Thumbnail Size Maximization**: Increased the size of mobile thumbnails while maintaining the 4-column layout by minimizing outer border spacing and card padding right to the screen edge.
+
 ## [0.1.8-alpha] - 2026-11-02
 
 ### Changed
