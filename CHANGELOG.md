@@ -5,6 +5,18 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6-alpha] - 2026-11-02
+
+### Added
+- **Always-Visible Star Button on Forum Images**: Replaced hover-dependent floating bookmark with an always-visible circular star button (`d-icon-star`) directly on topic images, eliminating the need to long-press or dismiss context menus on mobile devices.
+- **Dense High-Capacity Gallery Grid**:
+  - Desktop layout increased to **6 columns per row**.
+  - Mobile layout increased to **5 columns per row** with optimized touch targets and compact indicators.
+  - Mobile album sidebar automatically adapts into a horizontal scrolling drawer to maximize screen real estate for photos.
+
+### Changed
+- **Own-Image Exclusion**: The "Add to album" star button now automatically excludes images in the current user's own posts, appearing exclusively on other members' photos.
+
 ## [0.1.5-alpha] - 2026-11-02
 
 ### Fixed

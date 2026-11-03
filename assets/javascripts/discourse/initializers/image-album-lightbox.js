@@ -27,6 +27,11 @@ export default {
         }
 
         const post = helper ? helper.getModel() : null;
+        const authorId = post?.user_id || post?.get?.("user_id") || post?.userId;
+        if (authorId && currentUser && authorId === currentUser.id) {
+          return; // Do not show button on user's own images
+        }
+
         const postId = post ? post.id : null;
         const postTitle = post && post.topic ? post.topic.title : document.title;
 
@@ -68,14 +73,15 @@ export default {
             return;
           }
 
-          // Create "Add to album" floating button
+          // Create "Add to album" floating star button
           const saveBtn = document.createElement("button");
           saveBtn.type = "button";
           saveBtn.className = "image-album-save-btn";
-          saveBtn.title = i18n("image_album.lightbox.save_tooltip");
-          saveBtn.innerHTML = `${iconHTML("bookmark")} <span>${i18n("image_album.lightbox.add_to_album")}</span>`;
+          saveBtn.setAttribute("aria-label", i18n("image_album.lightbox.add_to_album"));
+          saveBtn.title = i18n("image_album.lightbox.add_to_album");
+          saveBtn.innerHTML = iconHTML("star");
 
-          // Handle click without triggering image lightbox zoom
+          // Handle click/touch without triggering image lightbox zoom
           saveBtn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -88,6 +94,10 @@ export default {
                 thumbnailUrl: img.src || imageUrl,
               },
             });
+          });
+
+          saveBtn.addEventListener("touchend", (e) => {
+            e.stopPropagation();
           });
 
           // Append button to container

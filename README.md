@@ -1,6 +1,6 @@
 # ALPHA Discourse Image Album
 
-[![Version](https://img.shields.io/badge/version-0.1.5--alpha-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.1.6--alpha-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Discourse Compatibility](https://img.shields.io/badge/discourse-2.8%2B%20%7C%203.x%20%7C%204.x-success.svg)](https://www.discourse.org)
 [![AI Generated](https://img.shields.io/badge/built%20with-AI-blueviolet.svg)](#-ai-creation-disclosure)
