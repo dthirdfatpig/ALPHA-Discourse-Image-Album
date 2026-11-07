@@ -11,6 +11,7 @@ DiscourseImageAlbum::Engine.routes.draw do
   get "/albums/:album_id/items" => "items#index"
   post "/albums/:album_id/items" => "items#create"
   post "/items/save-from-post" => "items#save_from_post"
+  get "/items/check" => "items#check"
   post "/items/move" => "items#move"
   post "/items/delete" => "items#destroy_multiple"
   delete "/items/:id" => "items#destroy"

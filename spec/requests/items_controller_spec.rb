@@ -46,4 +46,31 @@ RSpec.describe DiscourseImageAlbum::ItemsController, type: :request do
       expect(DiscourseImageAlbum::ImageAlbumItem.find_by(id: item1.id)).to be_nil
     end
   end
+
+  describe "GET /image-album/items/check" do
+    it "returns existing albums containing the image" do
+      DiscourseImageAlbum::ImageAlbumItem.create!(album: album_a, user: user, image_url: "https://example.com/check.png")
+
+      get "/image-album/items/check.json", params: {
+        image_url: "https://example.com/check.png",
+      }
+
+      expect(response.status).to eq(200)
+      json = response.parsed_body
+      expect(json["already_saved"]).to eq(true)
+      expect(json["existing_albums"]).to be_an(Array)
+      expect(json["existing_albums"].first["name"]).to eq("Album A")
+    end
+
+    it "returns false when image is not in any album" do
+      get "/image-album/items/check.json", params: {
+        image_url: "https://example.com/not-saved.png",
+      }
+
+      expect(response.status).to eq(200)
+      json = response.parsed_body
+      expect(json["already_saved"]).to eq(false)
+      expect(json["existing_albums"]).to be_empty
+    end
+  end
 end

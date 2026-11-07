@@ -68,6 +68,9 @@ en:
         saving: "Saving..."
         success: "Photo successfully saved to your album!"
         already_saved: "This photo is already in the selected album."
+        already_saved_in_album: "This image is already in album \"%{album_name}\"."
+        already_in_album_one: "This image is already in album \"%{album_name}\"."
+        already_in_album_other: "This image is already in albums: %{album_names}."
       admin:
         title: "Album Quota Overrides"
         user_section_title: "Photo Album Quotas"

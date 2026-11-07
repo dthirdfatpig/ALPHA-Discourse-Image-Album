@@ -27,11 +27,6 @@ export default {
         }
 
         const post = helper ? helper.getModel() : null;
-        const authorId = post?.user_id || post?.get?.("user_id") || post?.userId;
-        if (authorId && currentUser && authorId === currentUser.id) {
-          return; // Do not show button on user's own images
-        }
-
         const postId = post ? post.id : null;
         const postTitle = post && post.topic ? post.topic.title : document.title;
 

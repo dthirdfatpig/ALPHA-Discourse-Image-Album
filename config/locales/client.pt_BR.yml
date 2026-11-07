@@ -68,6 +68,9 @@ pt_BR:
         saving: "Salvando..."
         success: "Foto salva com sucesso no seu álbum!"
         already_saved: "Esta foto já está no álbum selecionado."
+        already_saved_in_album: "Esta imagem já está no álbum \"%{album_name}\"."
+        already_in_album_one: "Esta imagem já está no álbum \"%{album_name}\"."
+        already_in_album_other: "Esta imagem já está nos álbuns: %{album_names}."
       admin:
         title: "Limites do Álbum de Fotos"
         user_section_title: "Cotas do Álbum de Fotos"

@@ -5,6 +5,12 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.11-alpha] - 2026-11-07
+
+### Added
+- **Save Own Posted Images**: Enabled the "Add to album" star button on user's own forum post images, allowing members to organize their own photos into their albums after posting.
+- **Existing Album Status Notice**: The save-to-album dialog now identifies if the selected image is already saved in your albums and displays an informative notice ("This image is already in album X."), as well as in feedback alerts when saving duplicates.
+
 ## [0.1.10-alpha] - 2026-11-02
 
 ### Added

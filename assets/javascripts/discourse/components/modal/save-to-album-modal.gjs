@@ -7,6 +7,7 @@ import DModal from "discourse/components/d-modal";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { i18n } from "discourse-i18n";
+import icon from "discourse-common/helpers/d-icon";
 
 export default class SaveToAlbumModal extends Component {
   @service modal;
@@ -19,15 +20,62 @@ export default class SaveToAlbumModal extends Component {
   @tracked isSaving = false;
   @tracked isCreatingInline = false;
   @tracked newAlbumName = "";
+  @tracked existingAlbums = [];
+  @tracked isCheckingExisting = false;
 
   constructor() {
     super(...arguments);
     this.title = this.args.model?.title || "";
     this.loadAlbums();
+    this.checkExisting();
   }
 
   get photoUrl() {
     return this.args.model?.thumbnailUrl || this.args.model?.imageUrl;
+  }
+
+  get selectedAlbumName() {
+    const album = this.albums.find(
+      (a) => a.id.toString() === this.selectedAlbumId.toString()
+    );
+    return album ? album.name : "";
+  }
+
+  get existingAlbumNames() {
+    return this.existingAlbums.map((a) => a.name);
+  }
+
+  get alreadyInAlbumMessage() {
+    if (!this.existingAlbums.length) {
+      return null;
+    }
+    if (this.existingAlbums.length === 1) {
+      return i18n("image_album.save_modal.already_in_album_one", {
+        album_name: this.existingAlbums[0].name,
+      });
+    }
+    return i18n("image_album.save_modal.already_in_album_other", {
+      album_names: this.existingAlbumNames.join(", "),
+    });
+  }
+
+  async checkExisting() {
+    this.isCheckingExisting = true;
+    try {
+      const res = await ajax("/image-album/items/check", {
+        type: "GET",
+        data: {
+          image_url: this.args.model?.imageUrl,
+          thumbnail_url: this.args.model?.thumbnailUrl,
+          post_id: this.args.model?.postId,
+        },
+      });
+      this.existingAlbums = res.existing_albums || [];
+    } catch (e) {
+      // non-critical
+    } finally {
+      this.isCheckingExisting = false;
+    }
   }
 
   async loadAlbums() {
@@ -112,9 +160,14 @@ export default class SaveToAlbumModal extends Component {
       });
 
       if (res.already_saved) {
+        const albumName = res.album_name || this.selectedAlbumName;
         this.toasts.info({
           duration: "short",
-          data: { message: i18n("image_album.save_modal.already_saved") },
+          data: {
+            message: i18n("image_album.save_modal.already_saved_in_album", {
+              album_name: albumName,
+            }),
+          },
         });
       } else {
         this.toasts.success({
@@ -148,6 +201,13 @@ export default class SaveToAlbumModal extends Component {
               </div>
             </div>
           </div>
+
+          {{#if this.alreadyInAlbumMessage}}
+            <div class="already-in-album-notice">
+              <span class="notice-icon">{{icon "circle-info"}}</span>
+              <span class="notice-text">{{this.alreadyInAlbumMessage}}</span>
+            </div>
+          {{/if}}
 
           {{#if this.isCreatingInline}}
             <div class="form-group">

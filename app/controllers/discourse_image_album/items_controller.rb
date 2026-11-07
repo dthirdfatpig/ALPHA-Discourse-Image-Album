@@ -110,6 +110,7 @@ module ::DiscourseImageAlbum
         return render json: {
           success: true,
           already_saved: true,
+          album_name: album.name,
           item: ImageAlbumItemSerializer.new(existing, root: false).as_json
         }
       end
@@ -134,6 +135,42 @@ module ::DiscourseImageAlbum
       else
         render_json_error(item.errors.full_messages.join(", "))
       end
+    end
+
+    def check
+      image_url = params[:image_url].to_s.strip
+      thumbnail_url = params[:thumbnail_url].to_s.strip.presence
+      post_id = params[:post_id].presence
+      post = Post.find_by(id: post_id) if post_id
+
+      upload = nil
+      upload = Upload.get_from_url(image_url) if image_url.present?
+      upload ||= Upload.get_from_url(thumbnail_url) if thumbnail_url.present?
+
+      if upload.blank? && post.present?
+        upload = post.uploads.find do |u|
+          (image_url.present? && (image_url.include?(u.sha1) || image_url.include?(u.url))) ||
+          (thumbnail_url.present? && (thumbnail_url.include?(u.sha1) || thumbnail_url.include?(u.url)))
+        end
+      end
+
+      scope = ImageAlbumItem.joins(:album).where("image_album_items.user_id = ?", current_user.id)
+      if upload.present?
+        scope = scope.where("image_album_items.upload_id = ? OR image_album_items.image_url = ?", upload.id, image_url)
+      elsif image_url.present?
+        scope = scope.where("image_album_items.image_url = ?", image_url)
+      else
+        return render json: { already_saved: false, existing_albums: [] }
+      end
+
+      existing_albums = scope.distinct.pluck("image_albums.id", "image_albums.name").map do |id, name|
+        { id: id, name: name }
+      end
+
+      render json: {
+        already_saved: existing_albums.any?,
+        existing_albums: existing_albums
+      }
     end
 
     def move
