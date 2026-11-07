@@ -16,8 +16,7 @@ module ::DiscourseImageAlbum
       end
 
       albums = ImageAlbum.where(user_id: target_user.id).includes(:sub_albums).order(:name)
-      sub_counts = ImageAlbum.where(user_id: target_user.id).where.not(parent_id: nil).group(:parent_id).count
-      render_serialized(albums, ImageAlbumSerializer, root: "albums", sub_albums_counts: sub_counts)
+      render_serialized(albums, ImageAlbumSerializer, root: "albums")
     end
 
     def show
