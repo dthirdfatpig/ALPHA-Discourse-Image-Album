@@ -31,6 +31,7 @@ pt_BR:
       user_quota_exceeded: "Você atingiu sua cota máxima de %{limit} fotos em todos os seus álbuns."
       disk_quota_exceeded: "Você excedeu sua cota total de armazenamento de %{limit} MB."
       download_disabled: "O download de álbuns inteiros está desativado pela administração."
+      download_album_too_large: "Este álbum contém fotos demais para baixar de uma vez (máximo de %{max} fotos)."
       no_valid_images: "Nenhum dado de imagem válido ou ID de upload fornecido."
       target_album_invalid: "O álbum de destino selecionado é inválido ou não pertence a você."
       bulk_limit_exceeded: "Não é possível processar mais de %{limit} fotos em uma única operação em massa."

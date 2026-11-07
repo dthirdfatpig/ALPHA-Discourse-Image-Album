@@ -15,8 +15,9 @@ module ::DiscourseImageAlbum
         target_user = User.find_by(id: params[:user_id]) || current_user
       end
 
-      albums = ImageAlbum.where(user_id: target_user.id).order(:name)
-      render_serialized(albums, ImageAlbumSerializer, root: "albums")
+      albums = ImageAlbum.where(user_id: target_user.id).includes(:sub_albums).order(:name)
+      sub_counts = ImageAlbum.where(user_id: target_user.id).where.not(parent_id: nil).group(:parent_id).count
+      render_serialized(albums, ImageAlbumSerializer, root: "albums", sub_albums_counts: sub_counts)
     end
 
     def show
@@ -63,6 +64,17 @@ module ::DiscourseImageAlbum
       quota = QuotaCalculator.for_user(current_user)
       unless quota.can_download_zip?
         return render_json_error(I18n.t("discourse_image_album.errors.download_disabled"), status: 403)
+      end
+
+      # Rate limiting: maximum 5 downloads per hour per user (staff bypass)
+      RateLimiter.new(current_user, "image-album-download", 5, 1.hour).performed! unless current_user.staff?
+
+      # DoS protection: prevent exporting albums that exceed export capacity
+      if @album.images_count > ZipExporter::MAX_EXPORT_IMAGES
+        return render_json_error(
+          I18n.t("discourse_image_album.errors.download_album_too_large", max: ZipExporter::MAX_EXPORT_IMAGES),
+          status: 400
+        )
       end
 
       zip_file = ZipExporter.export(@album)

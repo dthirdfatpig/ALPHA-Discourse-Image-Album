@@ -30,6 +30,20 @@ RSpec.describe DiscourseImageAlbum::ItemsController, type: :request do
       expect(album_b.reload.images_count).to eq(2)
       expect(item1.reload.album_id).to eq(album_b.id)
     end
+
+    it "rejects moving items to an album owned by a different user" do
+      other_user = Fabricate(:user)
+      other_album = DiscourseImageAlbum::ImageAlbum.create!(user: other_user, name: "Other Album")
+      item = DiscourseImageAlbum::ImageAlbumItem.create!(album: album_a, user: user, image_url: "https://example.com/item.png")
+
+      post "/image-album/items/move.json", params: {
+        item_ids: [item.id],
+        target_album_id: other_album.id,
+      }
+
+      expect(response.status).to eq(404)
+      expect(item.reload.album_id).to eq(album_a.id)
+    end
   end
 
   describe "POST /image-album/items/delete" do

@@ -57,12 +57,14 @@ module ::DiscourseImageAlbum
 
       return render_json_error("User not found", status: 404) unless user
 
-      override = ImageAlbumUserOverride.find_or_initialize_by(user_id: user.id)
-      override.max_images = params[:max_images].presence&.to_i
-      override.max_disk_mb = params[:max_disk_mb].presence&.to_i
+      override_params = params.permit(:max_images, :max_disk_mb, :can_download_zip)
 
-      if params.key?(:can_download_zip)
-        val = params[:can_download_zip]
+      override = ImageAlbumUserOverride.find_or_initialize_by(user_id: user.id)
+      override.max_images = override_params[:max_images].presence&.to_i
+      override.max_disk_mb = override_params[:max_disk_mb].presence&.to_i
+
+      if override_params.key?(:can_download_zip)
+        val = override_params[:can_download_zip]
         override.can_download_zip = (val.nil? || val === "") ? nil : (val.to_s == "true")
       end
 

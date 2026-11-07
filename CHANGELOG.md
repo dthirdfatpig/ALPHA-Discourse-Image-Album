@@ -5,6 +5,23 @@ All notable changes to the **ALPHA Discourse Image Album** plugin will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.12-alpha] - 2026-11-07
+
+### Security
+- **ZIP Export Denial-of-Service Hardening**: Added maximum export limits (500 images, 500 MB uncompressed limit) and rate limiting (5 exports per hour per user with staff bypass) to prevent server resource exhaustion.
+- **SSRF Safe Fetching**: Replaced unverified direct HTTP download in ZIP export with Discourse's `FileHelper.download` and `FinalDestination` address validation, rejecting private and loopback IP ranges.
+- **Admin Parameter Filtering**: Applied strong parameter permits (`max_images`, `max_disk_mb`, `can_download_zip`) to the administrative quota overrides endpoint.
+
+### Performance
+- **Eliminated N+1 Serialization Queries**: Preloaded sub-albums and utilized single-query grouped counts for `sub_albums_count` calculations across album listings.
+- **URL Cooking & Thumbnail Memoization**: Memoized `url`, `thumb_url`, and optimized image lookups per record lifecycle to avoid redundant regex operations and duplicate thumbnail queries.
+- **Batched Bulk Operations**: Optimized bulk image move operations to execute via a single `update_all` query rather than individual updates.
+
+### Integrity & Discourse Separation
+- **Strict User Isolation in Moves**: Prevented moving photos across albums owned by different accounts, enforcing strict quota boundaries.
+- **Orphan Cleanup on User Deletion**: Registered a `user_destroyed` event listener to cleanly remove albums, items, and quota overrides when a Discourse account is deleted.
+- **Expanded Test Coverage**: Added specs verifying IDOR prevention, download export caps, N+1 query prevention, and cross-user move protections.
+
 ## [0.1.11-alpha] - 2026-11-07
 
 ### Added

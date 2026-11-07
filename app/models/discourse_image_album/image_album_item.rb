@@ -19,42 +19,45 @@ module ::DiscourseImageAlbum
     before_validation :populate_metadata_from_upload, on: :create
 
     def url
-      raw_url = if upload.present?
-        upload.url
-      else
-        image_url
+      @_cooked_url ||= begin
+        raw_url = if upload.present?
+          upload.url
+        else
+          image_url
+        end
+        self.class.cook_url(raw_url, upload: upload)
       end
-
-      self.class.cook_url(raw_url, upload: upload)
     end
 
     def thumb_url
-      if upload.present?
-        best_opt = find_best_optimized_image
-        raw_thumb = best_opt&.url.presence || thumbnail_url.presence || upload.url
-        return self.class.cook_url(raw_thumb, upload: upload)
+      @_cooked_thumb_url ||= begin
+        if upload.present?
+          best_opt = find_best_optimized_image
+          raw_thumb = best_opt&.url.presence || thumbnail_url.presence || upload.url
+          self.class.cook_url(raw_thumb, upload: upload)
+        elsif thumbnail_url.present?
+          self.class.cook_url(thumbnail_url)
+        else
+          self.class.cook_url(image_url)
+        end
       end
-
-      if thumbnail_url.present?
-        return self.class.cook_url(thumbnail_url)
-      end
-
-      self.class.cook_url(image_url)
     end
 
     def find_best_optimized_image
       return nil unless upload.present?
+      return @_best_optimized if defined?(@_best_optimized)
 
       # 1. Look for existing optimized versions on the upload
       opts = upload.optimized_images.to_a
       if opts.any?
         # Target thumbnail width between 180px and 700px
         suitable = opts.select { |oi| oi.width.to_i >= 180 }
-        return suitable.min_by { |oi| oi.width.to_i } || opts.max_by { |oi| oi.width.to_i }
+        @_best_optimized = suitable.min_by { |oi| oi.width.to_i } || opts.max_by { |oi| oi.width.to_i }
+        return @_best_optimized
       end
 
       # 2. Try creating or fetching an optimized thumbnail via Discourse
-      begin
+      @_best_optimized = begin
         if upload.respond_to?(:get_optimized_image)
           upload.get_optimized_image(400, 400)
         elsif upload.respond_to?(:thumbnail)
@@ -63,6 +66,7 @@ module ::DiscourseImageAlbum
       rescue => e
         nil
       end
+      @_best_optimized
     end
 
     def self.cook_url(raw_url, upload: nil)

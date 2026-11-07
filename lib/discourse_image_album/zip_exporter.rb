@@ -4,6 +4,9 @@ require "tempfile"
 
 module ::DiscourseImageAlbum
   class ZipExporter
+    MAX_EXPORT_IMAGES = 500
+    MAX_EXPORT_BYTES = 500 * 1024 * 1024 # 500 MB uncompressed limit
+
     def self.export(album)
       new(album).generate
     end
@@ -26,13 +29,23 @@ module ::DiscourseImageAlbum
 
       Zip::File.open(temp_zip.path, Zip::File::CREATE) do |zipfile|
         index = 1
-        album.items.includes(:upload).find_each do |item|
-          filename = sanitized_filename(item, index)
-          data = extract_image_bytes(item)
+        total_bytes = 0
 
+        album.items.includes(:upload).find_each do |item|
+          break if index > MAX_EXPORT_IMAGES
+
+          data = extract_image_bytes(item)
           if data.present?
+            total_bytes += data.bytesize
+            if total_bytes > MAX_EXPORT_BYTES
+              Rails.logger.warn("[DiscourseImageAlbum] Album #{album.id} ZIP export exceeded max bytes (#{MAX_EXPORT_BYTES})")
+              break
+            end
+
+            filename = sanitized_filename(item, index)
             zipfile.get_output_stream(filename) { |os| os.write(data) }
             index += 1
+            data = nil # Allow GC to reclaim memory immediately
           end
         end
       end
@@ -85,8 +98,26 @@ module ::DiscourseImageAlbum
       if url.present?
         full_url = UrlHelper.absolute(url)
         begin
-          response = FinalDestination::HTTP.get(URI.parse(full_url))
-          return response.body if response.is_a?(Net::HTTPSuccess)
+          if defined?(FileHelper) && FileHelper.respond_to?(:download)
+            tempfile = FileHelper.download(
+              full_url,
+              max_file_size: 25.megabytes,
+              tmp_file_name: "album-item-#{item.id}",
+              follow_redirect: true
+            )
+            if tempfile
+              bytes = File.binread(tempfile.path)
+              tempfile.close! rescue nil
+              return bytes
+            end
+          else
+            fd = FinalDestination.new(full_url, max_redirects: 3)
+            resolved_uri = fd.resolve
+            if resolved_uri.present?
+              response = FinalDestination::HTTP.get(resolved_uri)
+              return response.body if response.is_a?(Net::HTTPSuccess)
+            end
+          end
         rescue => e
           Rails.logger.warn("[DiscourseImageAlbum] URL download failed for #{full_url}: #{e.message}")
         end

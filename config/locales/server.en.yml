@@ -31,6 +31,7 @@ en:
       user_quota_exceeded: "You have reached your maximum quota of %{limit} images across all albums."
       disk_quota_exceeded: "You have exceeded your total storage quota of %{limit} MB."
       download_disabled: "Whole album downloading is currently disabled by administrator configuration."
+      download_album_too_large: "This album contains too many images to download at once (maximum %{max} images)."
       no_valid_images: "No valid image data or upload ID provided."
       target_album_invalid: "The selected target album is invalid or does not belong to you."
       bulk_limit_exceeded: "Cannot process more than %{limit} images in a single bulk operation."

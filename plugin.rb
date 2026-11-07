@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # name: ALPHA-Discourse-Image-Album
 # about: Personal photo album system for Discourse users with sub-albums, composer integration, 1-click photo saving, bulk management, and comprehensive admin quotas.
-# version: 0.1.11-alpha
+# version: 0.1.12-alpha
 # authors: AI Assistant & dthirdfatpig
 # url: https://github.com/dthirdfatpig/ALPHA-Discourse-Image-Album
 # required_version: 2.7.0
@@ -67,5 +67,13 @@ after_initialize do
   add_to_serializer(:current_user, :can_use_image_albums) do
     return false unless SiteSetting.image_album_enabled
     ::DiscourseImageAlbum::QuotaCalculator.for_user(object).can_use_albums?
+  end
+
+  # Cleanup orphaned albums, items, and quota overrides when a user is hard-deleted from Discourse
+  DiscourseEvent.on(:user_destroyed) do |user|
+    next unless user&.id
+    ::DiscourseImageAlbum::ImageAlbumItem.where(user_id: user.id).delete_all
+    ::DiscourseImageAlbum::ImageAlbum.where(user_id: user.id).delete_all
+    ::DiscourseImageAlbum::ImageAlbumUserOverride.where(user_id: user.id).delete_all
   end
 end

@@ -189,6 +189,11 @@ module ::DiscourseImageAlbum
       items = scope.to_a
       return render_json_error(I18n.t("discourse_image_album.errors.item_not_found"), status: 404) if items.empty?
 
+      # RULE-01: Disallow moving items between different users
+      if items.any? { |i| i.user_id != target_album.user_id }
+        return render_json_error(I18n.t("discourse_image_album.errors.target_album_invalid"), status: 400)
+      end
+
       # Check capacity of target album
       quota = QuotaCalculator.for_user(current_user)
       unless quota.album_has_capacity?(target_album, items.length)
@@ -198,9 +203,7 @@ module ::DiscourseImageAlbum
       old_album_ids = items.map(&:album_id).uniq
 
       ActiveRecord::Base.transaction do
-        items.each do |item|
-          item.update!(album_id: target_album.id)
-        end
+        ImageAlbumItem.where(id: items.map(&:id)).update_all(album_id: target_album.id, updated_at: Time.zone.now)
         # Refresh counters
         ImageAlbum.reset_counters(target_album.id, :items)
         old_album_ids.each { |aid| ImageAlbum.reset_counters(aid, :items) }
